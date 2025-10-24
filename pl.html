@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Liability News</title>
+    <title>PL関連ニュース</title>
     <style>
         * {
             margin: 0;
@@ -283,78 +283,77 @@
         <div class="header-top">
             <div class="header-content">
                 <div class="title-area">
-                    <h1>Product Liability News</h1>
+                    <h1>PL関連ニュース</h1>
                     <div class="title-links">
                         <a class="link-button" href="index.html">労働災害関連ニュース</a>
-                        <a class="link-button" href="pl.html">PL関連ニュース</a>
+                        <a class="link-button" href="pl_en.html">Product Liability News</a>
                     </div>
                 </div>
                 <div class="controls">
                     <span id="stats" class="stats-inline" style="display: none;"></span>
-                    <button id="fetchBtn" onclick="fetchNews()">Refresh</button>
+                    <button id="fetchBtn" onclick="fetchNews()">更新</button>
                 </div>
             </div>
         </div>
         <div id="categoryFilters" style="display: none;" class="header-filters">
             <div class="filters-content category-filters">
-                <label>Filter by Category:</label>
+                <label>カテゴリーで絞り込み:</label>
                 <div class="category-buttons" id="categoryButtons"></div>
             </div>
         </div>
     </div>
     <div class="container">
-        </div>
         <div id="loading">
             <div class="spinner"></div>
-            <div>Fetching news...</div>
+            <div>ニュースを取得中...</div>
         </div>
         <div id="results"></div>
     </div>
     <script>
-        // Product Liability related keywords
+        // 製造物責任（PL）関連のキーワード
         const keywords = [
-            'product liability',
-            'products liability',
-            'product recall',
-            'recall',
-            'defective product',
-            'product defect',
-            'manufacturing defect',
-            'design defect',
-            'product safety',
-            'consumer safety',
-            'product lawsuit',
-            'class action',
-            'FDA recall',
-            'CPSC',
-            'consumer product safety',
-            'product warning',
-            'failure to warn',
-            'product hazard',
-            'injury',
-            'damages',
-            'settlement',
-            'product negligence',
-            'strict liability',
-            'breach of warranty',
-            'unsafe product',
-            'product contamination',
-            'quality control',
-            'quality issue',
-            'product withdrawal',
-            'safety recall',
-            'product alert',
-            'consumer protection',
-            'FDA',
-            'NHTSA',
-            'vehicle recall',
-            'drug recall',
-            'food recall',
-            'medical device recall'
+            '製造物責任',
+            'PL',
+            'PL法',
+            '製造物責任法',
+            '品質不正',
+            '品質偽装',
+            '品質管理',
+            '品質問題',
+            'リコール',
+            '自主回収',
+            '回収命令',
+            '不具合',
+            '欠陥',
+            '欠陥品',
+            '製品事故',
+            '製品回収',
+            '安全基準',
+            '品質検査',
+            '検査不正',
+            '試験不正',
+            '改ざん',
+            'データ改ざん',
+            '虚偽報告',
+            '消費者庁',
+            '消費者安全',
+            '製品安全',
+            '安全性',
+            '製造責任',
+            '賠償',
+            '損害賠償',
+            '製造者責任',
+            '製品欠陥',
+            '設計ミス',
+            '製造ミス',
+            '品質基準',
+            '認証不正',
+            'ISO',
+            'JIS'
         ];
-        // Global variables
+        // グローバル変数
         let allNewsData = [];
-        let selectedCategory = 'All';
+        let selectedCategory = 'すべて';
         async function fetchNews() {
             const resultsDiv = document.getElementById('results');
             const loadingDiv = document.getElementById('loading');
@@ -366,17 +365,17 @@
             fetchBtn.disabled = true;
             try {
                 const allNews = [];
-                // Multiple RSS feeds from international sources
+                // 複数のRSSフィードから取得
                 const rssUrls = [
-                    'https://news.google.com/rss/search?q=product+recall&hl=en-US&gl=US&ceid=US:en',
-                    'https://news.google.com/rss/search?q=product+liability&hl=en-US&gl=US&ceid=US:en',
-                    'https://news.google.com/rss/search?q=FDA+recall&hl=en-US&gl=US&ceid=US:en',
-                    'https://news.google.com/rss/search?q=CPSC+recall&hl=en-US&gl=US&ceid=US:en',
-                    'https://news.google.com/rss/search?q=defective+product&hl=en-US&gl=US&ceid=US:en',
-                    'https://news.google.com/rss/search?q=consumer+safety&hl=en-US&gl=US&ceid=US:en',
-                    'https://news.google.com/rss/search?q=product+lawsuit&hl=en-US&gl=US&ceid=US:en'
+                    'https://news.google.com/rss/search?q=製造物責任&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=PL法&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=品質不正&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=品質管理&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=リコール&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=製品回収&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=品質偽装&hl=ja&gl=JP&ceid=JP:ja'
                 ];
-                // CORS proxy to fetch RSS
+                // CORS プロキシを使用してRSSを取得
                 const corsProxy = 'https://api.allorigins.win/raw?url=';
                 for (const rssUrl of rssUrls) {
                     try {
@@ -391,48 +390,40 @@
                             const pubDate = item.querySelector('pubDate')?.textContent || '';
                             const description = item.querySelector('description')?.textContent || '';
                             const source = item.querySelector('source')?.textContent || '';
-                            // Keyword matching
+                            // キーワードマッチング
                             const matchedKeywords = keywords.filter(kw =>
-                                title.toLowerCase().includes(kw.toLowerCase()) ||
-                                description.toLowerCase().includes(kw.toLowerCase())
+                                title.includes(kw) || description.includes(kw)
                             );
                             if (matchedKeywords.length > 0) {
-                                // Category classification
-                                let category = 'Other';
-                                const titleDesc = (title + ' ' + description).toLowerCase();
-                                if (titleDesc.includes('recall') || titleDesc.includes('withdrawal')) {
-                                    if (titleDesc.includes('vehicle') || titleDesc.includes('car') || titleDesc.includes('auto') || titleDesc.includes('nhtsa')) {
-                                        category = 'Vehicle Recalls';
-                                    } else if (titleDesc.includes('drug') || titleDesc.includes('medication') || titleDesc.includes('pharmaceutical')) {
-                                        category = 'Drug Recalls';
-                                    } else if (titleDesc.includes('food') || titleDesc.includes('contamination') || titleDesc.includes('salmonella') || titleDesc.includes('listeria')) {
-                                        category = 'Food Recalls';
-                                    } else if (titleDesc.includes('medical device') || titleDesc.includes('implant')) {
-                                        category = 'Medical Device Recalls';
-                                    } else if (titleDesc.includes('consumer product') || titleDesc.includes('cpsc')) {
-                                        category = 'Consumer Product Recalls';
-                                    } else {
-                                        category = 'Recalls';
-                                    }
-                                } else if (titleDesc.includes('lawsuit') || titleDesc.includes('class action') || titleDesc.includes('settlement') || titleDesc.includes('litigation')) {
-                                    category = 'Lawsuits';
-                                } else if (titleDesc.includes('defect') || titleDesc.includes('defective') || titleDesc.includes('malfunction')) {
-                                    category = 'Product Defects';
-                                } else if (titleDesc.includes('fda') || titleDesc.includes('cpsc') || titleDesc.includes('nhtsa') || titleDesc.includes('regulation')) {
-                                    category = 'Regulatory';
-                                } else if (titleDesc.includes('injury') || titleDesc.includes('death') || titleDesc.includes('accident')) {
-                                    category = 'Safety Issues';
-                                } else if (titleDesc.includes('quality') || titleDesc.includes('inspection') || titleDesc.includes('standard')) {
-                                    category = 'Quality Control';
+                                // カテゴリー分類
+                                let category = 'その他';
+                                const titleDesc = title + ' ' + description;
+                                if (titleDesc.includes('製造物責任法') || titleDesc.includes('PL法') || titleDesc.includes('消費生活用製品安全法')) {
+                                    category = '関連法令';
+                                } else if (titleDesc.includes('品質不正') || titleDesc.includes('品質偽装') || titleDesc.includes('検査不正') || titleDesc.includes('試験不正') || titleDesc.includes('改ざん') || titleDesc.includes('虚偽報告')) {
+                                    category = '品質不正';
+                                } else if (titleDesc.includes('リコール') || titleDesc.includes('自主回収') || titleDesc.includes('製品回収') || titleDesc.includes('回収命令')) {
+                                    category = 'リコール';
+                                } else if (titleDesc.includes('品質管理') || titleDesc.includes('品質基準') || titleDesc.includes('品質検査') || titleDesc.includes('ISO') || titleDesc.includes('JIS')) {
+                                    category = '品質管理';
+                                } else if (titleDesc.includes('製造物責任') || titleDesc.includes('製造者責任') || titleDesc.includes('損害賠償') || titleDesc.includes('賠償')) {
+                                    category = '製造物責任（PL）';
+                                } else if (titleDesc.includes('欠陥') || titleDesc.includes('不具合') || titleDesc.includes('設計ミス') || titleDesc.includes('製造ミス')) {
+                                    category = '欠陥・不具合';
+                                } else if (titleDesc.includes('製品事故') || titleDesc.includes('製品安全') || titleDesc.includes('消費者安全') || titleDesc.includes('消費者庁')) {
+                                    category = '製品安全';
                                 }
-                                // Duplicate check
+                                // 重複チェック（同じリンクがあれば追加しない）
                                 if (!allNews.find(n => n.link === link)) {
-                                    // Clean description
+                                    // descriptionからHTMLタグを削除し、タイトルと重複する部分を除去
                                     let cleanDesc = description.replace(/<[^>]*>/g, '').trim();
+                                    // タイトルが含まれている場合は削除
                                     if (cleanDesc.startsWith(title)) {
                                         cleanDesc = cleanDesc.substring(title.length).trim();
                                     }
+                                    // 先頭の記号や空白を削除
                                     cleanDesc = cleanDesc.replace(/^[・\s\-—…]+/, '').trim();
+                                    // 200文字に制限
                                     if (cleanDesc.length > 200) {
                                         cleanDesc = cleanDesc.substring(0, 200) + '...';
                                     }
@@ -452,48 +443,48 @@
                         console.error('Error fetching RSS:', err);
                     }
                 }
-                // Sort by date (newest first)
+                // 日付でソート（新しい順）
                 allNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
                 loadingDiv.style.display = 'none';
                 if (allNews.length > 0) {
                     allNewsData = allNews;
                     statsDiv.style.display = 'inline-block';
-                    statsDiv.textContent = `${allNews.length} articles`;
-                    // Create category buttons
+                    statsDiv.textContent = `${allNews.length}件`;
+                    // カテゴリーボタンを生成
                     createCategoryButtons();
-                    // Display news
+                    // ニュースを表示
                     displayNews(allNewsData);
                 } else {
-                    resultsDiv.innerHTML = '<div class="no-results">No product liability news found.<br>Please try again later.</div>';
+                    resultsDiv.innerHTML = '<div class="no-results">PL関連のニュースが見つかりませんでした。<br>後でもう一度お試しください。</div>';
                 }
             } catch (error) {
                 console.error('Error:', error);
                 loadingDiv.style.display = 'none';
-                resultsDiv.innerHTML = `<div class="no-results">Failed to fetch news.<br><br>Please check your internet connection and try again.<br><br>Error: ${error.message}</div>`;
+                resultsDiv.innerHTML = `<div class="no-results">ニュースの取得に失敗しました。<br><br>インターネット接続を確認して、もう一度お試しください。<br><br>エラー: ${error.message}</div>`;
             }
             fetchBtn.disabled = false;
         }
-        // Create category buttons
+        // カテゴリーボタンを生成
         function createCategoryButtons() {
             const categoryFiltersDiv = document.getElementById('categoryFilters');
             const categoryButtonsDiv = document.getElementById('categoryButtons');
-            // Count by category
+            // カテゴリーごとの件数を集計
             const categoryCounts = {};
             allNewsData.forEach(news => {
-                const category = news.category || 'Other';
+                const category = news.category || 'その他';
                 categoryCounts[category] = (categoryCounts[category] || 0) + 1;
             });
-            // Sort by count
+            // ソート（件数の多い順）
             const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
-            // Generate buttons
+            // ボタンを生成
             categoryButtonsDiv.innerHTML = '';
-            // "All" button
+            // 「すべて」ボタン
             const allBtn = document.createElement('button');
             allBtn.className = 'category-btn active';
-            allBtn.textContent = `All (${allNewsData.length})`;
-            allBtn.onclick = () => filterByCategory('All');
+            allBtn.textContent = `すべて (${allNewsData.length})`;
+            allBtn.onclick = () => filterByCategory('すべて');
             categoryButtonsDiv.appendChild(allBtn);
-            // Category buttons
+            // カテゴリーボタン
             sortedCategories.forEach(([category, count]) => {
                 const btn = document.createElement('button');
                 btn.className = 'category-btn';
@@ -502,35 +493,35 @@
                 categoryButtonsDiv.appendChild(btn);
             });
             categoryFiltersDiv.style.display = 'block';
-            // Adjust header height
+            // ヘッダーの高さ調整のため少し待つ
             setTimeout(() => {
                 const headerHeight = document.querySelector('.header').offsetHeight;
                 document.querySelector('.container').style.paddingTop = (headerHeight + 20) + 'px';
             }, 100);
         }
-        // Filter by category
+        // カテゴリーでフィルター
         function filterByCategory(category) {
             selectedCategory = category;
-            // Update button active state
+            // ボタンのアクティブ状態を更新
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
-            // Filter and display
+            // フィルタリングして表示
             let filteredNews = allNewsData;
-            if (category !== 'All') {
+            if (category !== 'すべて') {
                 filteredNews = allNewsData.filter(news => news.category === category);
             }
             displayNews(filteredNews);
         }
-        // Display news
+        // ニュースを表示
         function displayNews(newsArray) {
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
             newsArray.forEach(news => {
                 const newsItem = document.createElement('div');
                 newsItem.className = 'news-item';
-                const formattedDate = new Date(news.pubDate).toLocaleString('en-US', {
+                const formattedDate = new Date(news.pubDate).toLocaleString('ja-JP', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -538,19 +529,19 @@
                     minute: '2-digit'
                 });
                 newsItem.innerHTML = `
-                    <div class="category-badge">${news.category || 'Other'}</div>
+                    <div class="category-badge">${news.category || 'その他'}</div>
                     <div class="news-title">
                         <a href="${news.link}" target="_blank">${news.title}</a>
                     </div>
                     <div class="news-meta">${formattedDate} | ${news.source || ''}</div>
                     <div class="matched-keywords">
-                        ${news.matchedKeywords.slice(0, 5).map(kw => `<span class="matched-keyword">${kw}</span>`).join('')}
+                        ${news.matchedKeywords.map(kw => `<span class="matched-keyword">${kw}</span>`).join('')}
                     </div>
                 `;
                 resultsDiv.appendChild(newsItem);
             });
         }
-        // Auto-fetch news on page load
+        // ページ読み込み時に自動的にニュースを取得
         window.addEventListener('load', () => {
             fetchNews();
         });
