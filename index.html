@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>労働災害関連ニュース</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header-top {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-filters {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .filters-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 160px 20px 20px;
+        }
+
+        button {
+            background: white;
+            color: #667eea;
+            border: 2px solid white;
+            padding: 8px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats-inline {
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        #loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.2em;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid rgba(102,126,234,0.3);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            #results {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            #results {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 1.2em;
+            }
+
+            .container {
+                padding-top: 200px;
+            }
+
+            .category-filters label {
+                display: block;
+                margin-bottom: 8px;
+            }
+        }
+
+        .news-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .news-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .news-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        .news-title a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .news-title a:hover {
+            text-decoration: underline;
+        }
+
+        .news-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+
+        .matched-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .matched-keyword {
+            background: #ffd700;
+            color: #333;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.2em;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            grid-column: 1 / -1;
+        }
+
+        .category-filters label {
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 0;
+            font-weight: bold;
+            color: white;
+            font-size: 0.9em;
+            vertical-align: middle;
+        }
+
+        .category-buttons {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            vertical-align: middle;
+        }
+
+        .category-btn {
+            padding: 5px 12px;
+            border: 1px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .category-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.8);
+        }
+
+        .category-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .matched-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: auto;
+            padding-top: 10px;
+        }
+
+        .matched-keyword {
+            background: #ffd700;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .news-meta {
+            color: #666;
+            font-size: 0.8em;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="header-content">
+                <h1>労働災害関連ニュース</h1>
+                <div class="controls">
+                    <span id="stats" class="stats-inline" style="display: none;"></span>
+                    <button id="fetchBtn" onclick="fetchNews()">更新</button>
+                </div>
+            </div>
+        </div>
+        <div id="categoryFilters" style="display: none;" class="header-filters">
+            <div class="filters-content category-filters">
+                <label>カテゴリーで絞り込み:</label>
+                <div class="category-buttons" id="categoryButtons"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="loading">
+            <div class="spinner"></div>
+            <div>ニュースを取得中...</div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // 労働災害関連のキーワード
+        const keywords = [
+            '労災',
+            '労働災害',
+            '労働事故',
+            '作業事故',
+            '労働安全',
+            '労災事故',
+            '安全衛生',
+            '労働者死亡',
+            '労働者負傷',
+            '過労死',
+            '労災認定',
+            '労災保険',
+            '業務災害',
+            '通勤災害',
+            '労働基準監督署',
+            '安全管理',
+            '労働環境',
+            '労働条件',
+            '作業中',
+            '事故死',
+            '労基署',
+            '職場',
+            '業務上',
+            '死亡事故',
+            '負傷',
+            '転落',
+            '挟まれ',
+            '感電',
+            '労働安全衛生法',
+            '安全衛生法',
+            '法改正',
+            '労働安全衛生対策',
+            '安全対策',
+            '衛生対策',
+            '労働衛生'
+        ];
+
+        // グローバル変数
+        let allNewsData = [];
+        let selectedCategory = 'すべて';
+
+        async function fetchNews() {
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.getElementById('loading');
+            const statsDiv = document.getElementById('stats');
+            const fetchBtn = document.getElementById('fetchBtn');
+
+            resultsDiv.innerHTML = '';
+            loadingDiv.style.display = 'block';
+            statsDiv.style.display = 'none';
+            fetchBtn.disabled = true;
+
+            try {
+                const allNews = [];
+
+                // 複数のRSSフィードから取得
+                const rssUrls = [
+                    'https://news.google.com/rss/search?q=労働災害&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=労災&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=労働事故&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=作業事故&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=過労死&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=労働安全衛生法&hl=ja&gl=JP&ceid=JP:ja',
+                    'https://news.google.com/rss/search?q=労働安全衛生対策&hl=ja&gl=JP&ceid=JP:ja'
+                ];
+
+                // CORS プロキシを使用してRSSを取得
+                const corsProxy = 'https://api.allorigins.win/raw?url=';
+
+                for (const rssUrl of rssUrls) {
+                    try {
+                        const response = await fetch(corsProxy + encodeURIComponent(rssUrl));
+                        const text = await response.text();
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(text, 'text/xml');
+
+                        const items = xmlDoc.querySelectorAll('item');
+
+                        items.forEach(item => {
+                            const title = item.querySelector('title')?.textContent || '';
+                            const link = item.querySelector('link')?.textContent || '';
+                            const pubDate = item.querySelector('pubDate')?.textContent || '';
+                            const description = item.querySelector('description')?.textContent || '';
+                            const source = item.querySelector('source')?.textContent || '';
+
+                            // キーワードマッチング
+                            const matchedKeywords = keywords.filter(kw =>
+                                title.includes(kw) || description.includes(kw)
+                            );
+
+                            if (matchedKeywords.length > 0) {
+                                // カテゴリー分類
+                                let category = 'その他';
+                                const titleDesc = title + ' ' + description;
+
+                                if (titleDesc.includes('労働安全衛生法') || titleDesc.includes('安全衛生法') || titleDesc.includes('法改正')) {
+                                    category = '労働安全衛生法関連';
+                                } else if (titleDesc.includes('労働安全衛生対策') || titleDesc.includes('安全対策') || titleDesc.includes('衛生対策')) {
+                                    category = '労働安全衛生対策';
+                                } else if (titleDesc.includes('死亡') || titleDesc.includes('死者')) {
+                                    category = '死亡事故';
+                                } else if (titleDesc.includes('負傷') || titleDesc.includes('けが') || titleDesc.includes('重傷')) {
+                                    category = '負傷事故';
+                                } else if (titleDesc.includes('過労死') || titleDesc.includes('過労')) {
+                                    category = '過労死';
+                                } else if (titleDesc.includes('労災認定') || titleDesc.includes('認定')) {
+                                    category = '労災認定';
+                                } else if (titleDesc.includes('転落') || titleDesc.includes('墜落')) {
+                                    category = '転落・墜落';
+                                } else if (titleDesc.includes('挟まれ') || titleDesc.includes('巻き込まれ')) {
+                                    category = '挟まれ・巻き込まれ';
+                                } else if (titleDesc.includes('感電')) {
+                                    category = '感電';
+                                } else if (titleDesc.includes('安全') || titleDesc.includes('衛生')) {
+                                    category = '安全衛生';
+                                }
+
+                                // 重複チェック（同じリンクがあれば追加しない）
+                                if (!allNews.find(n => n.link === link)) {
+                                    // descriptionからHTMLタグを削除し、タイトルと重複する部分を除去
+                                    let cleanDesc = description.replace(/<[^>]*>/g, '').trim();
+
+                                    // タイトルが含まれている場合は削除
+                                    if (cleanDesc.startsWith(title)) {
+                                        cleanDesc = cleanDesc.substring(title.length).trim();
+                                    }
+
+                                    // 先頭の記号や空白を削除
+                                    cleanDesc = cleanDesc.replace(/^[・\s\-—…]+/, '').trim();
+
+                                    // 200文字に制限
+                                    if (cleanDesc.length > 200) {
+                                        cleanDesc = cleanDesc.substring(0, 200) + '...';
+                                    }
+
+                                    allNews.push({
+                                        title,
+                                        link,
+                                        pubDate,
+                                        description: cleanDesc,
+                                        source,
+                                        matchedKeywords,
+                                        category
+                                    });
+                                }
+                            }
+                        });
+                    } catch (err) {
+                        console.error('Error fetching RSS:', err);
+                    }
+                }
+
+                // 日付でソート（新しい順）
+                allNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+                loadingDiv.style.display = 'none';
+
+                if (allNews.length > 0) {
+                    allNewsData = allNews;
+                    statsDiv.style.display = 'inline-block';
+                    statsDiv.textContent = `${allNews.length}件`;
+
+                    // カテゴリーボタンを生成
+                    createCategoryButtons();
+
+                    // ニュースを表示
+                    displayNews(allNewsData);
+                } else {
+                    resultsDiv.innerHTML = '<div class="no-results">労働災害関連のニュースが見つかりませんでした。<br>後でもう一度お試しください。</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                loadingDiv.style.display = 'none';
+                resultsDiv.innerHTML = `<div class="no-results">ニュースの取得に失敗しました。<br><br>インターネット接続を確認して、もう一度お試しください。<br><br>エラー: ${error.message}</div>`;
+            }
+
+            fetchBtn.disabled = false;
+        }
+
+        // カテゴリーボタンを生成
+        function createCategoryButtons() {
+            const categoryFiltersDiv = document.getElementById('categoryFilters');
+            const categoryButtonsDiv = document.getElementById('categoryButtons');
+
+            // カテゴリーごとの件数を集計
+            const categoryCounts = {};
+            allNewsData.forEach(news => {
+                const category = news.category || 'その他';
+                categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+            });
+
+            // ソート（件数の多い順）
+            const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
+
+            // ボタンを生成
+            categoryButtonsDiv.innerHTML = '';
+
+            // 「すべて」ボタン
+            const allBtn = document.createElement('button');
+            allBtn.className = 'category-btn active';
+            allBtn.textContent = `すべて (${allNewsData.length})`;
+            allBtn.onclick = () => filterByCategory('すべて');
+            categoryButtonsDiv.appendChild(allBtn);
+
+            // カテゴリーボタン
+            sortedCategories.forEach(([category, count]) => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = `${category} (${count})`;
+                btn.onclick = () => filterByCategory(category);
+                categoryButtonsDiv.appendChild(btn);
+            });
+
+            categoryFiltersDiv.style.display = 'block';
+            // ヘッダーの高さ調整のため少し待つ
+            setTimeout(() => {
+                const headerHeight = document.querySelector('.header').offsetHeight;
+                document.querySelector('.container').style.paddingTop = (headerHeight + 20) + 'px';
+            }, 100);
+        }
+
+        // カテゴリーでフィルター
+        function filterByCategory(category) {
+            selectedCategory = category;
+
+            // ボタンのアクティブ状態を更新
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // フィルタリングして表示
+            let filteredNews = allNewsData;
+            if (category !== 'すべて') {
+                filteredNews = allNewsData.filter(news => news.category === category);
+            }
+
+            displayNews(filteredNews);
+        }
+
+        // ニュースを表示
+        function displayNews(newsArray) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            newsArray.forEach(news => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+
+                const formattedDate = new Date(news.pubDate).toLocaleString('ja-JP', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                newsItem.innerHTML = `
+                    <div class="category-badge">${news.category || 'その他'}</div>
+                    <div class="news-title">
+                        <a href="${news.link}" target="_blank">${news.title}</a>
+                    </div>
+                    <div class="news-meta">${formattedDate} | ${news.source || ''}</div>
+                    <div class="matched-keywords">
+                        ${news.matchedKeywords.map(kw => `<span class="matched-keyword">${kw}</span>`).join('')}
+                    </div>
+                `;
+
+                resultsDiv.appendChild(newsItem);
+            });
+        }
+
+        // ページ読み込み時に自動的にニュースを取得
+        window.addEventListener('load', () => {
+            fetchNews();
+        });
+    </script>
+</body>
+</html>
